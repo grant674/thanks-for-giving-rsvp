@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>RSVP · Thanks for Giving Kickoff Breakfast</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Instrument+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<div class="band"></div>
+<main class="card">
+  <header class="hero">
+    <div class="emblem" aria-hidden="true"><span></span></div>
+    <p class="eyebrow">PMI U.S. invites you to the</p>
+    <h1 class="title"><span class="dark">Thanks for</span><span class="red">Giving</span></h1>
+    <p class="sub">Kickoff Breakfast</p>
+    <p class="lede">Honoring the men and women of Arizona’s fire service and launching a season of giving for Valley firehouses.</p>
+  </header>
+
+  <section class="facts">
+    <div class="fact">
+      <p class="label">When</p>
+      <p class="big">Tuesday, December 1, 2026</p>
+      <p class="muted">GivingTuesday</p>
+      <p>Check-in and breakfast 8:30 AM<br>Program 9:00 to 9:40 AM<br>Museum tour to 10:00 AM</p>
+    </div>
+    <div class="fact">
+      <p class="label">Where</p>
+      <p class="big">Hall of Flame Museum of Firefighting</p>
+      <p>6101 E. Van Buren St.<br>Phoenix, AZ 85008</p>
+      <p class="muted">Complimentary parking at the museum</p>
+    </div>
+  </section>
+
+  <p class="note">With remarks from Arizona leaders and a donation presentation to the Professional Fire Fighters of Arizona and the Hall of Flame. Seating is limited. Kindly reply by <strong>Tuesday, November 17</strong>.</p>
+
+  <form name="rsvp" method="POST" action="/api/rsvp" class="form" novalidate>
+    <p class="hidden"><label>Leave this field empty <input name="bot-field"></label></p>
+
+    <fieldset>
+      <legend>Your response</legend>
+      <div class="choices">
+        <label class="choice"><input type="radio" name="attending" value="Yes, I will attend" required><span>Yes, I will attend</span></label>
+        <label class="choice"><input type="radio" name="attending" value="Regretfully, I cannot attend"><span>Regretfully, I cannot attend</span></label>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Your information</legend>
+      <div class="grid">
+        <label>First name<input type="text" name="first_name" autocomplete="given-name" required></label>
+        <label>Last name<input type="text" name="last_name" autocomplete="family-name" required></label>
+        <label>Title<input type="text" name="title" autocomplete="organization-title"></label>
+        <label>Organization<input type="text" name="organization" autocomplete="organization"></label>
+        <label>Email<input type="email" name="email" autocomplete="email" required></label>
+        <label>Mobile phone<input type="tel" name="phone" autocomplete="tel"></label>
+      </div>
+    </fieldset>
+
+    <fieldset id="attending-only">
+      <legend>Breakfast selection</legend>
+      <p class="help">Plated breakfast by Tarbell’s. Family-style starters and sides are served to every table; please choose one entree.</p>
+      <div class="choices stack">
+        <label class="choice"><input type="radio" name="entree" value="Brioche French Toast"><span><strong>Brioche French Toast</strong><em>Maple butter, seasonal berries, cinnamon</em></span></label>
+        <label class="choice"><input type="radio" name="entree" value="Sausage and Egg Brioche Sandwich"><span><strong>Sausage and Egg Brioche Sandwich</strong><em>Sage breakfast sausage, folded egg, Gruyère, caramelized onion, aioli</em></span></label>
+        <label class="choice"><input type="radio" name="entree" value="Dietary alternate (please describe below)"><span><strong>Dietary alternate</strong><em>Vegetarian, gluten-free or other need; describe below</em></span></label>
+      </div>
+      <label class="full">Dietary needs or allergies<textarea name="dietary" rows="2" placeholder="Optional"></textarea></label>
+
+      <details class="guest">
+        <summary>Bringing one guest? Add their details</summary>
+        <div class="grid">
+          <label>Guest name<input type="text" name="guest_name"></label>
+          <label>Guest title and organization<input type="text" name="guest_title_org"></label>
+          <label class="full">Guest entree
+            <select name="guest_entree">
+              <option value="">Select one</option>
+              <option>Brioche French Toast</option>
+              <option>Sausage and Egg Brioche Sandwich</option>
+              <option>Dietary alternate (describe below)</option>
+            </select>
+          </label>
+          <label class="full">Guest dietary needs<input type="text" name="guest_dietary" placeholder="Optional"></label>
+        </div>
+      </details>
+    </fieldset>
+
+    <fieldset>
+      <legend>Anything else</legend>
+      <label class="full">Notes for the event team<textarea name="notes" rows="2" placeholder="Accessibility needs, arrival timing, staff contact, or questions"></textarea></label>
+    </fieldset>
+
+    <ul id="form-errors" class="errors" hidden></ul>
+    <button type="submit" class="btn">Send my RSVP</button>
+    <p class="fine">Your information is used only to plan this event. Questions: <a href="mailto:grant@pachecoventuresaz.com">grant@pachecoventuresaz.com</a></p>
+  </form>
+
+  <footer class="foot">
+    <p>Hosted by PMI U.S. · In support of the Professional Fire Fighters of Arizona and the Hall of Flame</p>
+  </footer>
+</main>
+<script>
+  // Hide the breakfast selection when the guest declines; clear its fields so nothing stray is submitted.
+  const radios = document.querySelectorAll('input[name="attending"]');
+  const block = document.getElementById('attending-only');
+  function sync() {
+    const yes = document.querySelector('input[name="attending"]:checked');
+    const show = !yes || yes.value.startsWith('Yes');
+    block.hidden = !show;
+    block.querySelectorAll('input[name="entree"]').forEach(r => { r.required = show; if (!show) r.checked = false; });
+  }
+  radios.forEach(r => r.addEventListener('change', sync));
+  sync();
+
+  const form = document.querySelector('form');
+  const btn = form.querySelector('.btn');
+  const errBox = document.getElementById('form-errors');
+  form.addEventListener('submit', async e => {
+    e.preventDefault();
+    errBox.hidden = true; errBox.innerHTML = '';
+    btn.disabled = true; btn.textContent = 'Sending';
+    try {
+      const res = await fetch('/api/rsvp', { method: 'POST', headers: { 'Accept': 'application/json' }, body: new FormData(form) });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.ok) { window.location.href = data.attending ? '/thank-you' : '/thank-you?declined=1'; return; }
+      errBox.innerHTML = (data.errors || ['Something went wrong. Please try again or email grant@pachecoventuresaz.com.']).map(x => '<li>' + x + '</li>').join('');
+      errBox.hidden = false; errBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    } catch (err) {
+      errBox.innerHTML = '<li>We could not reach the server. Please try again in a moment.</li>'; errBox.hidden = false;
+    } finally { btn.disabled = false; btn.textContent = 'Send my RSVP'; }
+  });
+</script>
+</body>
+</html>

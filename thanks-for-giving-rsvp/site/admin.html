@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Admin · Thanks for Giving RSVP</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Instrument+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="/styles.css">
+<style>
+  .card { max-width: 1040px; }
+  .top { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; flex-wrap: wrap; border-bottom: 1px solid var(--navy); padding-bottom: 12px; margin-bottom: 20px; }
+  .top h1 { font-family: 'Big Shoulders Display', sans-serif; font-size: 40px; text-transform: uppercase; margin: 0; }
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin: 16px 0 24px; }
+  .tile { background: #fff; border: 1px solid var(--line); padding: 14px 16px; }
+  .tile b { display: block; font-family: 'Big Shoulders Display', sans-serif; font-size: 40px; line-height: 1; color: var(--red); }
+  .tile span { font-family: 'Instrument Sans', sans-serif; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--navy); }
+  h2 { font-family: 'Instrument Sans', sans-serif; font-size: 12px; letter-spacing: .32em; text-transform: uppercase; color: var(--navy); border-bottom: 1px solid var(--line); padding-bottom: 8px; margin: 28px 0 12px; }
+  table { width: 100%; border-collapse: collapse; font-size: 16px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-family: 'Instrument Sans', sans-serif; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--navy); }
+  .yes { color: #1b6e3a; font-weight: 600; } .no { color: var(--ink-dim); }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: end; }
+  .row > * { flex: 1 1 200px; }
+  .btn { width: auto; display: inline-block; padding: 12px 22px; font-size: 20px; }
+  .btn.ghost { background: #fff; color: var(--navy); border: 1px solid var(--navy); }
+  .btn.small { font-size: 14px; padding: 8px 12px; font-family: 'Instrument Sans', sans-serif; letter-spacing: .06em; }
+  .status { font-family: 'Instrument Sans', sans-serif; font-size: 14px; color: var(--ink-dim); margin-top: 8px; min-height: 1.2em; }
+  .scroll { overflow-x: auto; }
+  #login { max-width: 420px; margin: 40px auto; text-align: center; }
+  pre { white-space: pre-wrap; font-size: 14px; background: #fff; border: 1px solid var(--line); padding: 10px; }
+</style>
+</head>
+<body>
+<div class="band"></div>
+<main class="card">
+  <div id="login">
+    <p class="eyebrow">Thanks for Giving · Event team</p>
+    <h1 class="title" style="font-size:48px;line-height:1">Admin</h1>
+    <label>Admin key<input type="password" id="key" autocomplete="current-password"></label>
+    <p><button class="btn" id="login-btn">Open</button></p>
+    <p class="status" id="login-status"></p>
+  </div>
+
+  <div id="app" hidden>
+    <div class="top">
+      <h1>Thanks for Giving · RSVPs</h1>
+      <div><button class="btn small ghost" id="refresh">Refresh</button> <button class="btn small ghost" id="logout">Lock</button></div>
+    </div>
+
+    <div class="tiles" id="tiles"></div>
+
+    <h2>Entree counts for Tarbell’s</h2>
+    <div id="entrees"></div>
+
+    <h2>Responses</h2>
+    <div class="row">
+      <label>Filter<select id="filter"><option value="all">All responses</option><option value="yes">Confirmed</option><option value="no">Declined</option><option value="guest">With a guest</option><option value="dietary">Dietary notes</option></select></label>
+      <label>Search<input type="text" id="search" placeholder="Name, organization, email"></label>
+      <div><button class="btn small" id="csv">Download CSV</button></div>
+    </div>
+    <div class="scroll"><table id="rsvps"><thead><tr><th>Received</th><th>Attending</th><th>Name</th><th>Title / Organization</th><th>Email / Phone</th><th>Entree</th><th>Guest</th><th>Notes</th><th></th></tr></thead><tbody></tbody></table></div>
+
+    <h2>Send an event update</h2>
+    <p class="help">Goes out from the event address with the branded header. Send a test to yourself first.</p>
+    <div class="row">
+      <label>Audience<select id="u-aud"><option value="confirmed">Confirmed guests</option><option value="nonresponders">Invitees who have not replied</option><option value="declined">Declined</option><option value="all">Everyone</option></select></label>
+      <label>Subject<input type="text" id="u-subj" placeholder="Parking update for Tuesday"></label>
+    </div>
+    <label>Message (plain paragraphs; blank line between them)<textarea id="u-body" rows="6"></textarea></label>
+    <div class="row" style="margin-top:10px">
+      <label>Send a test to<input type="email" id="u-test" placeholder="you@pachecoventuresaz.com"></label>
+      <div><button class="btn small ghost" id="u-test-btn">Send test</button> <button class="btn small" id="u-send-btn">Send to audience</button></div>
+    </div>
+    <p class="status" id="u-status"></p>
+
+    <h2>Scheduled reminders</h2>
+    <p class="help">These send automatically at 9:00 AM Phoenix on their dates, once per person. You can also send one now or test it.</p>
+    <div id="reminders"></div>
+
+    <h2>Invite list</h2>
+    <p class="help">Paste CSV with a header row: first_name, last_name, title, organization, category, email, phone. Existing emails are updated. This list defines “non-responders” for reminders.</p>
+    <textarea id="inv-csv" rows="5" placeholder="first_name,last_name,title,organization,category,email,phone"></textarea>
+    <div class="row" style="margin-top:10px"><div><button class="btn small" id="inv-btn">Import invitees</button> <span id="inv-count" class="status" style="display:inline"></span></div></div>
+    <p class="status" id="inv-status"></p>
+  </div>
+</main>
+<script>
+const $ = s => document.querySelector(s);
+let KEY = sessionStorage.getItem('tfg_admin_key') || '';
+let RSVPS = [];
+const api = async (path, opts = {}) => {
+  const res = await fetch('/api/admin/' + path, { ...opts, headers: { 'x-admin-key': KEY, 'content-type': 'application/json', ...(opts.headers || {}) } });
+  if (res.status === 401) { lock(); throw new Error('Unauthorized'); }
+  return res;
+};
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function lock() { KEY = ''; sessionStorage.removeItem('tfg_admin_key'); $('#app').hidden = true; $('#login').hidden = false; }
+async function open() {
+  try { const r = await api('summary'); if (!r.ok) throw new Error('bad'); }
+  catch { $('#login-status').textContent = 'That key was not accepted.'; return; }
+  sessionStorage.setItem('tfg_admin_key', KEY); $('#login').hidden = true; $('#app').hidden = false; await load();
+}
+async function load() {
+  const s = await (await api('summary')).json();
+  $('#tiles').innerHTML = [['Invitees', s.invitees], ['Responses', s.responses], ['Confirmed', s.confirmed], ['Declined', s.declined], ['Seats incl. guests', s.seats]].map(([l, v]) => `<div class="tile"><b>${v}</b><span>${l}</span></div>`).join('');
+  $('#entrees').innerHTML = s.entrees.length ? `<table><tr><th>Entree</th><th>Plates</th></tr>${s.entrees.map(e => `<tr><td>${esc(e.entree)}</td><td>${e.guests}</td></tr>`).join('')}</table>` : '<p class="help">No confirmed entrees yet.</p>';
+  $('#reminders').innerHTML = `<table><tr><th>Reminder</th><th>Sends on</th><th>Audience</th><th>Subject</th><th>Log</th><th></th></tr>${s.reminders.map(r => `<tr><td>${r.kind}</td><td>${r.sendOn}</td><td>${r.audience}</td><td>${esc(r.subject)}</td><td>${Object.entries(r.log).map(([k, v]) => k + ' ' + v).join(', ') || 'none'}</td><td style="white-space:nowrap"><button class="btn small ghost" data-test="${r.kind}">Test to me</button> <button class="btn small ghost" data-now="${r.kind}">Send now</button></td></tr>`).join('')}</table><p class="status" id="r-status"></p>`;
+  RSVPS = (await (await api('rsvps')).json()).rsvps; render();
+}
+function render() {
+  const f = $('#filter').value, q = $('#search').value.toLowerCase();
+  const rows = RSVPS.filter(r => (f === 'all') || (f === 'yes' && r.attending) || (f === 'no' && !r.attending) || (f === 'guest' && r.guest_name) || (f === 'dietary' && (r.dietary || r.guest_dietary)))
+    .filter(r => !q || [r.first_name, r.last_name, r.organization, r.email, r.title].join(' ').toLowerCase().includes(q));
+  $('#rsvps tbody').innerHTML = rows.map(r => `<tr>
+    <td>${new Date(r.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</td>
+    <td class="${r.attending ? 'yes' : 'no'}">${r.attending ? 'Yes' : 'No'}</td>
+    <td><b>${esc(r.first_name)} ${esc(r.last_name)}</b></td>
+    <td>${esc(r.title)}${r.title && r.organization ? '<br>' : ''}${esc(r.organization)}</td>
+    <td>${esc(r.email)}${r.phone ? '<br>' + esc(r.phone) : ''}</td>
+    <td>${esc(r.entree)}${r.dietary ? '<br><i>' + esc(r.dietary) + '</i>' : ''}</td>
+    <td>${esc(r.guest_name)}${r.guest_entree ? '<br>' + esc(r.guest_entree) : ''}${r.guest_dietary ? '<br><i>' + esc(r.guest_dietary) + '</i>' : ''}</td>
+    <td>${esc(r.notes)}</td>
+    <td><button class="btn small ghost" data-resend="${r.id}" title="Resend confirmation">Resend</button></td></tr>`).join('') || '<tr><td colspan="9" class="help">No responses match.</td></tr>';
+}
+const paras = t => t.split(/\n\s*\n/).map(p => '<p>' + esc(p.trim()).replace(/\n/g, '<br>') + '</p>').join('');
+
+$('#login-btn').onclick = () => { KEY = $('#key').value; open(); };
+$('#key').addEventListener('keydown', e => { if (e.key === 'Enter') { KEY = $('#key').value; open(); } });
+$('#logout').onclick = lock;
+$('#refresh').onclick = load;
+$('#filter').onchange = render; $('#search').oninput = render;
+$('#csv').onclick = async () => { const r = await api('rsvps?format=csv'); const b = await r.blob(); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'thanks-for-giving-rsvps.csv'; a.click(); };
+$('#u-test-btn').onclick = async () => { $('#u-status').textContent = 'Sending test'; const r = await (await api('send', { method: 'POST', body: JSON.stringify({ audience: $('#u-aud').value, subject: $('#u-subj').value, body_html: paras($('#u-body').value), test_to: $('#u-test').value }) })).json(); $('#u-status').textContent = r.ok ? 'Test sent.' : 'Failed: ' + (r.error || JSON.stringify(r)); };
+$('#u-send-btn').onclick = async () => { const aud = $('#u-aud').options[$('#u-aud').selectedIndex].text; if (!confirm(`Send "${$('#u-subj').value}" to ${aud}?`)) return; $('#u-status').textContent = 'Sending'; const r = await (await api('send', { method: 'POST', body: JSON.stringify({ audience: $('#u-aud').value, subject: $('#u-subj').value, body_html: paras($('#u-body').value) }) })).json(); $('#u-status').textContent = r.error ? 'Failed: ' + r.error : `Sent ${r.sent} of ${r.recipients} (${r.failed} failed).`; load(); };
+document.addEventListener('click', async e => {
+  const t = e.target.closest('button'); if (!t) return;
+  if (t.dataset.test) { const to = prompt('Send a test of this reminder to which email?', $('#u-test').value); if (!to) return; const r = await (await api('send-reminder', { method: 'POST', body: JSON.stringify({ kind: t.dataset.test, test_to: to }) })).json(); $('#r-status').textContent = r.ok ? 'Test sent.' : 'Failed: ' + (r.error || JSON.stringify(r)); }
+  if (t.dataset.now) { if (!confirm('Send this reminder now to everyone in its audience who has not received it?')) return; const r = await (await api('send-reminder', { method: 'POST', body: JSON.stringify({ kind: t.dataset.now }) })).json(); $('#r-status').textContent = r.error ? 'Failed: ' + r.error : `Sent ${r.sent}, skipped ${r.skipped} already sent, ${r.failed} failed.`; load(); }
+  if (t.dataset.resend) { t.textContent = 'Sending'; const r = await (await api('resend-confirmation', { method: 'POST', body: JSON.stringify({ rsvp_id: t.dataset.resend }) })).json(); t.textContent = r.ok ? 'Sent' : 'Failed'; }
+});
+$('#inv-btn').onclick = async () => { $('#inv-status').textContent = 'Importing'; const r = await (await api('invitees', { method: 'POST', body: JSON.stringify({ csv: $('#inv-csv').value }) })).json(); $('#inv-status').textContent = r.error ? 'Failed: ' + r.error : `Imported or updated ${r.upserted} invitees.`; load(); };
+if (KEY) open();
+</script>
+</body>
+</html>
