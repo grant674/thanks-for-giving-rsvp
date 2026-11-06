@@ -5,8 +5,9 @@ let client: SupabaseClient | null = null;
 export function db(): SupabaseClient {
   if (client) return client;
   const url = Netlify.env.get("SUPABASE_URL");
-  const key = Netlify.env.get("SUPABASE_SERVICE_ROLE_KEY");
-  if (!url || !key) throw new Error("SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be set");
+  // Secret (service) key. Accepts either variable name.
+  const key = Netlify.env.get("SUPABASE_SERVICE_ROLE_KEY") || Netlify.env.get("Supabase_API");
+  if (!url || !key) throw new Error("SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY (or Supabase_API) must be set");
   client = createClient(url, key, { auth: { persistSession: false } });
   return client;
 }
