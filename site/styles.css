@@ -102,3 +102,10 @@ textarea { resize: vertical; }
 
 .errors { margin: 0 0 14px; padding: 12px 16px 12px 32px; border: 1px solid #B3261E; background: #FBEBEA; color: var(--char); font-family: var(--font-body); font-size: 15px; }
 .btn:disabled { opacity: .7; cursor: default; }
+
+/* White line frame, as on the Save the Date */
+.frame { position: fixed; inset: 22px; border: 1.5px solid rgba(255,255,255,.85); border-radius: 18px; pointer-events: none; z-index: 0; }
+.card { position: relative; z-index: 1; }
+@media (max-width: 640px) { .frame { inset: 9px; border-radius: 12px; } .card { margin: 22px 20px 44px; } }
+/* Short white rule beneath the title block, as on the card */
+.hero .rule { width: 72px; height: 1.5px; background: #fff; margin: 22px auto 20px; opacity: .9; }
