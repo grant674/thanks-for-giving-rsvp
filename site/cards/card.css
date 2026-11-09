@@ -10,10 +10,10 @@ html, body { margin: 0; padding: 0; background: #0A2A8C; }
 @media screen { body { padding: 24px 0; } .card { box-shadow: 0 20px 60px rgba(0,0,0,.35); } }
 .frame { position: absolute; inset: 27px; border: 1.5px solid #fff; border-radius: 14px; pointer-events: none; }
 .inner { position: absolute; inset: 27px; padding: 30px 44px 0; display: flex; flex-direction: column; align-items: center; }
-.eyebrow { font-size: 13px; letter-spacing: .42em; text-transform: uppercase; margin: 0 0 18px; }
-.title { font-family: 'field-gothic-condensed', 'Barlow Condensed', 'Arial Narrow', sans-serif; font-weight: 700; text-transform: uppercase; font-size: 75px; line-height: .9; margin: 0; }
+.eyebrow { font-size: 13px; letter-spacing: .42em; text-transform: uppercase; margin: 0 0 14px; }
+.title { font-family: 'field-gothic-condensed', 'Barlow Condensed', 'Arial Narrow', sans-serif; font-weight: 700; text-transform: uppercase; font-size: 70px; line-height: .9; margin: 0; }
 .sub { font-family: 'field-gothic-condensed', 'Barlow Condensed', 'Arial Narrow', sans-serif; font-weight: 400; text-transform: uppercase; font-size: 23px; line-height: 1.05; letter-spacing: .02em; margin: 14px 0 0; }
-.rule { width: 60px; height: 1.5px; background: #fff; margin: 18px auto; }
+.rule { width: 60px; height: 1.5px; background: #fff; margin: 14px auto; }
 .date { font-weight: 700; font-size: 18px; margin: 0 0 8px; }
 .sched { margin: 0; padding: 0; list-style: none; }
 .sched li { margin: 5px 0; }
@@ -22,6 +22,11 @@ html, body { margin: 0; padding: 0; background: #0A2A8C; }
 .venue { margin: 16px 0 0; } .venue b { display: block; font-size: 16px; }
 .soft { color: #D6E0FA; font-size: 13.5px; margin: 6px 0 0; }
 .rsvp { margin: 14px 0 0; font-weight: 700; font-size: 15px; } .rsvp .url { font-size: 15.5px; }
-.logos { position: absolute; left: 0; right: 0; bottom: 56px; display: flex; justify-content: space-around; align-items: center; padding: 0 70px; }
-.logos img { height: 75px; width: auto; } .logos img.pmi { height: 59px; }
-.std .logos { bottom: 70px; }
+.logos { position: absolute; left: 0; right: 0; bottom: 48px; display: flex; justify-content: space-around; align-items: center; padding: 0 70px; }
+.logos img { height: 68px; width: auto; } .logos img.pmi { height: 54px; }
+.std .logos { bottom: 62px; }
+.inv .sched li { margin: 3px 0; }
+.inv .rule { margin: 10px auto !important; }
+.inv .title { font-size: 58px !important; }
+.inv .sub { font-size: 19px !important; margin-top: 10px; }
+.inv .body { margin-top: 8px !important; }
