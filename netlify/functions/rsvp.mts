@@ -68,8 +68,8 @@ export default async (req: Request, context: Context) => {
 
   // Confirmation email (does not block the guest if the provider is down).
   const subject = attending
-    ? `You are confirmed: ${EVENT.name}, ${EVENT.dateLabel}`
-    : `Thank you for your response: ${EVENT.name}`;
+    ? `You are confirmed: Thanks for Answering the Call, ${EVENT.dateLabel}`
+    : `Thank you for your response: Thanks for Answering the Call`;
   context.waitUntil((async () => {
     const res = await sendEmail({ to: email, subject, html: confirmationHtml(saved), kind: "confirmation", rsvpId: saved.id, attachIcs: attending });
     if (res.ok) await supabase.from("tfg_rsvps").update({ confirmation_sent_at: new Date().toISOString() }).eq("id", saved.id);

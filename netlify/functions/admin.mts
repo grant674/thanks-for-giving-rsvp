@@ -115,7 +115,7 @@ export default async (req: Request, context: Context) => {
     const { rsvp_id } = await req.json();
     const { data: r } = await supabase.from("tfg_rsvps").select("*").eq("id", rsvp_id).single();
     if (!r) return Response.json({ error: "Not found" }, { status: 404 });
-    const res = await sendEmail({ to: r.email, subject: r.attending ? "You are confirmed: Thanks for Giving Kickoff Breakfast" : "Thank you for your response: Thanks for Giving", html: confirmationHtml(r), kind: "confirmation", rsvpId: r.id, attachIcs: r.attending });
+    const res = await sendEmail({ to: r.email, subject: r.attending ? "You are confirmed: Thanks for Answering the Call" : "Thank you for your response: Thanks for Answering the Call", html: confirmationHtml(r), kind: "confirmation", rsvpId: r.id, attachIcs: r.attending });
     return Response.json(res);
   }
 
