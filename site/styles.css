@@ -17,7 +17,7 @@ html { background: #001E7A; }
 html, body { margin: 0; color: var(--char); font-family: var(--font-body); font-size: 18px; line-height: 1.5; }
 .band { height: 0; }
 body { position: relative; min-height: 100vh; background: transparent; }
-/* Layered field: soft light from upper-left, deep shade at the base, fine diagonal weave, and a faint Maltese-cross watermark */
+/* Layered field: soft light from upper-left, deep shade at the base, and a fine diagonal weave */
 body::before { content: ""; position: fixed; inset: 0; z-index: -2; pointer-events: none;
   background:
     radial-gradient(1200px 700px at 18% -10%, rgba(80,130,255,.55), transparent 60%),
@@ -25,9 +25,8 @@ body::before { content: ""; position: fixed; inset: 0; z-index: -2; pointer-even
     linear-gradient(180deg, #0033B4 0%, #0A2A8C 55%, #001E7A 100%); }
 body::after { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: .9;
   background-image:
-    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='560' height='560' viewBox='-45 -45 290 290'><path fill='none' stroke='rgba(255,255,255,0.075)' stroke-width='2' stroke-linejoin='round' d='M114.0,94.0 L192.0,62.0 L172.0,100.0 L192.0,138.0 L114.0,106.0L106.0,114.0 L138.0,192.0 L100.0,172.0 L62.0,192.0 L94.0,114.0L86.0,106.0 L8.0,138.0 L28.0,100.0 L8.0,62.0 L86.0,94.0L94.0,86.0 L62.0,8.0 L100.0,28.0 L138.0,8.0 L106.0,86.0 Z'/></svg>"),
     repeating-linear-gradient(135deg, rgba(255,255,255,.035) 0 1px, transparent 1px 14px);
-  background-size: 560px 560px, auto; background-position: center top, 0 0; }
+}
 .logos { display: flex; justify-content: center; align-items: center; gap: 36px; flex-wrap: wrap; margin: 28px 40px 0; }
 .logos img { height: 64px; width: auto; }
 .logos img.pmi { height: 52px; }
@@ -103,9 +102,6 @@ textarea { resize: vertical; }
 .errors { margin: 0 0 14px; padding: 12px 16px 12px 32px; border: 1px solid #B3261E; background: #FBEBEA; color: var(--char); font-family: var(--font-body); font-size: 15px; }
 .btn:disabled { opacity: .7; cursor: default; }
 
-/* White line frame, as on the Save the Date */
-.frame { position: fixed; inset: 22px; border: 1.5px solid rgba(255,255,255,.85); border-radius: 18px; pointer-events: none; z-index: 0; }
 .card { position: relative; z-index: 1; }
-@media (max-width: 640px) { .frame { inset: 9px; border-radius: 12px; } .card { margin: 22px 20px 44px; } }
 /* Short white rule beneath the title block, as on the card */
 .hero .rule { width: 72px; height: 1.5px; background: #fff; margin: 22px auto 20px; opacity: .9; }
