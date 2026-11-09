@@ -16,7 +16,18 @@
 html { background: #001E7A; }
 html, body { margin: 0; color: var(--char); font-family: var(--font-body); font-size: 18px; line-height: 1.5; }
 .band { height: 0; }
-body { background: linear-gradient(180deg, #0033B4 0%, #001E7A 100%); min-height: 100vh; }
+body { position: relative; min-height: 100vh; background: transparent; }
+/* Layered field: soft light from upper-left, deep shade at the base, fine diagonal weave, and a faint Maltese-cross watermark */
+body::before { content: ""; position: fixed; inset: 0; z-index: -2; pointer-events: none;
+  background:
+    radial-gradient(1200px 700px at 18% -10%, rgba(80,130,255,.55), transparent 60%),
+    radial-gradient(900px 600px at 95% 110%, rgba(0,10,60,.75), transparent 60%),
+    linear-gradient(180deg, #0033B4 0%, #0A2A8C 55%, #001E7A 100%); }
+body::after { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: .9;
+  background-image:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='560' height='560' viewBox='-45 -45 290 290'><path fill='none' stroke='rgba(255,255,255,0.075)' stroke-width='2' stroke-linejoin='round' d='M114.0,94.0 L192.0,62.0 L172.0,100.0 L192.0,138.0 L114.0,106.0L106.0,114.0 L138.0,192.0 L100.0,172.0 L62.0,192.0 L94.0,114.0L86.0,106.0 L8.0,138.0 L28.0,100.0 L8.0,62.0 L86.0,94.0L94.0,86.0 L62.0,8.0 L100.0,28.0 L138.0,8.0 L106.0,86.0 Z'/></svg>"),
+    repeating-linear-gradient(135deg, rgba(255,255,255,.035) 0 1px, transparent 1px 14px);
+  background-size: 560px 560px, auto; background-position: center top, 0 0; }
 .logos { display: flex; justify-content: center; align-items: center; gap: 36px; flex-wrap: wrap; margin: 28px 40px 0; }
 .logos img { height: 64px; width: auto; }
 .logos img.pmi { height: 52px; }
@@ -26,7 +37,7 @@ body { background: linear-gradient(180deg, #0033B4 0%, #001E7A 100%); min-height
 @media (max-width: 640px) { .card > *:not(.hero) { margin-left: 20px; margin-right: 20px; } }
 @media (max-width: 640px) { .card { margin: 16px 12px 40px; padding: 32px 20px; } html, body { font-size: 18px; } }
 
-.hero { text-align: center; background: linear-gradient(180deg, #0033B4, #0A2A8C); color: #fff; padding: 44px 32px 40px; border-bottom: 3px solid #fff; }
+.hero { text-align: center; background: radial-gradient(900px 420px at 50% -20%, rgba(90,140,255,.45), transparent 65%), linear-gradient(180deg, #0033B4, #0A2A8C); color: #fff; padding: 44px 32px 40px; border-bottom: 3px solid #fff; }
 .hero .lede, .hero .eyebrow, .hero .sub { color: #fff; }
 .hero .lede { color: #D6E0FA; }
 .emblem { display: none; }
