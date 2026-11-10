@@ -36,7 +36,7 @@ body::after { content: ""; position: fixed; inset: 0; z-index: -1; pointer-event
 @media (max-width: 640px) { .hero { background:
   linear-gradient(180deg, rgba(29,78,121,.72) 0%, rgba(29,78,121,.9) 100%),
   var(--hero-photo) 70% 30% / cover no-repeat, var(--navy-hero); } }
-.hero .topband { background: var(--navy); margin: 0; padding: 12px 44px; font-size: 13px; letter-spacing: .34em; text-transform: uppercase; color: #fff; }
+.hero .topband { background: var(--navy); margin: 0; padding: 12px 44px; text-align: center; font-size: 13px; letter-spacing: .34em; text-transform: uppercase; color: #fff; }
 .hero .inner { padding: 40px 44px 36px; }
 @media (max-width: 640px) { .hero .topband { padding: 10px 22px; font-size: 12px; } .hero .inner { padding: 30px 22px 30px; } }
 .title { font-family: var(--font-head); font-weight: 700; text-transform: uppercase; line-height: .8; margin: 0 0 16px; letter-spacing: -.01em; text-shadow: 0 8px 28px rgba(0,0,0,.55), 0 3px 8px rgba(0,0,0,.35); }
