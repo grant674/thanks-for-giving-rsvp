@@ -33,7 +33,7 @@
     var c = read() || {};
     modal.querySelector("#ck-functional").checked = !!c.functional;
     modal.querySelector("#ck-analytics").checked = !!c.analytics;
-    if (!modal.parentNode) document.body.appendChild(modal);
+    if (modal.parentNode !== document.body) document.body.appendChild(modal);
     modal.hidden = false; document.body.classList.add("ck-lock");
     modal.querySelector("#ck-functional").focus();
   }
