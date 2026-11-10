@@ -112,3 +112,39 @@ textarea { resize: vertical; }
 .thanks .muted a { color: #fff; }
 .thanks .btn-link { display: inline-block; margin-top: 18px; padding: 12px 22px; border: 1px solid #fff; color: #fff; text-decoration: none; font-size: 14px; letter-spacing: .12em; text-transform: uppercase; border-radius: 3px; }
 @media (max-width: 640px) { .thanks .inner { padding: 30px 22px; } .thanks .topband { padding: 10px 22px; } }
+
+/* Cookie banner and preference center */
+.ck-banner { position: fixed; left: 0; right: 0; bottom: 0; z-index: 50; background: var(--navy); color: #fff; padding: 16px 24px; display: flex; gap: 20px; align-items: center; justify-content: center; flex-wrap: wrap; box-shadow: 0 -10px 40px rgba(0,0,0,.35); border-top: 3px solid var(--accent); }
+.ck-banner p { margin: 0; max-width: 620px; font-size: 15px; line-height: 1.45; }
+.ck-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.ck-btn { font-family: var(--font-body); font-weight: 700; font-size: 13px; letter-spacing: .14em; text-transform: uppercase; padding: 11px 16px; border-radius: 3px; cursor: pointer; border: 1px solid #fff; background: transparent; color: #fff; }
+.ck-solid { background: var(--accent); border-color: var(--accent); color: #0B2238; }
+.ck-solid:hover { background: #fff; border-color: #fff; }
+.ck-ghost:hover { background: rgba(255,255,255,.12); }
+.ck-modal { position: fixed; inset: 0; z-index: 60; background: rgba(11,34,56,.72); display: flex; align-items: center; justify-content: center; padding: 20px; }
+.ck-modal[hidden] { display: none; }
+.ck-panel { background: #fff; color: var(--char); width: 100%; max-width: 620px; border-radius: 8px; overflow: hidden; box-shadow: 0 30px 80px rgba(0,0,0,.45); max-height: calc(100vh - 40px); display: flex; flex-direction: column; }
+.ck-head { background: var(--navy); color: #fff; padding: 12px 20px; font-size: 12px; letter-spacing: .3em; text-transform: uppercase; display: flex; justify-content: space-between; align-items: center; }
+.ck-x { background: none; border: 0; color: #fff; font-size: 26px; line-height: 1; cursor: pointer; padding: 0 4px; }
+.ck-body { padding: 22px 24px 8px; overflow: auto; }
+.ck-body h2 { font-family: var(--font-head); font-weight: 700; text-transform: uppercase; font-size: 40px; line-height: .9; margin: 0 0 12px; color: var(--navy-hero); }
+.ck-body > p { margin: 0 0 18px; font-size: 16px; color: var(--ink-dim); }
+.ck-cat { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; padding: 14px 0; border-top: 1px solid var(--line); }
+.ck-cat h3 { font-family: var(--font-body); font-weight: 700; font-size: 13px; letter-spacing: .24em; text-transform: uppercase; color: var(--accent-ink); margin: 0 0 6px; }
+.ck-cat p { margin: 0; font-size: 15px; color: var(--ink-dim); }
+.ck-always { flex: 0 0 auto; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; font-weight: 700; color: var(--navy); padding-top: 4px; }
+.ck-switch { position: relative; flex: 0 0 auto; width: 48px; height: 28px; margin-top: 2px; }
+.ck-switch input { opacity: 0; width: 0; height: 0; position: absolute; }
+.ck-switch span { position: absolute; inset: 0; background: #C5CFDB; border-radius: 28px; cursor: pointer; transition: background .15s; }
+.ck-switch span::after { content: ""; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; background: #fff; border-radius: 50%; transition: transform .15s; box-shadow: 0 1px 3px rgba(0,0,0,.3); }
+.ck-switch input:checked + span { background: var(--accent); }
+.ck-switch input:checked + span::after { transform: translateX(20px); }
+.ck-switch input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
+.ck-fine { font-size: 13px; color: var(--ink-dim); margin: 14px 0 10px; border-top: 1px solid var(--line); padding-top: 12px; }
+.ck-fine a { color: var(--accent-ink); }
+.ck-foot { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; padding: 14px 24px 18px; background: #F3F6FA; border-top: 1px solid var(--line); }
+.ck-foot .ck-ghost { border-color: var(--navy); color: var(--navy); }
+.ck-foot .ck-ghost:hover { background: #E4EBF4; }
+.ck-lock { overflow: hidden; }
+.foot .ck-link { background: none; border: 0; padding: 0; margin-top: 8px; font: inherit; letter-spacing: inherit; text-transform: inherit; color: var(--accent-ink); cursor: pointer; text-decoration: underline; }
+@media (max-width: 640px) { .ck-banner { padding: 14px 16px; } .ck-actions { width: 100%; } .ck-btn { flex: 1 1 auto; text-align: center; } .ck-body h2 { font-size: 34px; } }
