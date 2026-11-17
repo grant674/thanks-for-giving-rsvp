@@ -122,7 +122,7 @@ function render() {
     <td>${esc(r.entree)}${r.dietary ? '<br><i>' + esc(r.dietary) + '</i>' : ''}</td>
     <td>${esc(r.guest_name)}${r.guest_entree ? '<br>' + esc(r.guest_entree) : ''}${r.guest_dietary ? '<br><i>' + esc(r.guest_dietary) + '</i>' : ''}</td>
     <td>${esc(r.notes)}</td>
-    <td><button class="btn small ghost" data-resend="${r.id}" title="Resend confirmation">Resend</button></td></tr>`).join('') || '<tr><td colspan="9" class="help">No responses match.</td></tr>';
+    <td style="white-space:nowrap"><button class="btn small ghost" data-resend="${r.id}" title="Resend confirmation">Resend</button> <button class="btn small ghost" data-delete="${r.id}" data-name="${esc(r.first_name)} ${esc(r.last_name)}" data-email="${esc(r.email)}" title="Delete this response" style="color:#B3261E;border-color:#B3261E">Delete</button></td></tr>`).join('') || '<tr><td colspan="9" class="help">No responses match.</td></tr>';
 }
 const paras = t => t.split(/\n\s*\n/).map(p => '<p>' + esc(p.trim()).replace(/\n/g, '<br>') + '</p>').join('');
 
@@ -138,6 +138,13 @@ document.addEventListener('click', async e => {
   const t = e.target.closest('button'); if (!t) return;
   if (t.dataset.test) { const to = prompt('Send a test of this reminder to which email?', $('#u-test').value); if (!to) return; const r = await (await api('send-reminder', { method: 'POST', body: JSON.stringify({ kind: t.dataset.test, test_to: to }) })).json(); $('#r-status').textContent = r.ok ? 'Test sent.' : 'Failed: ' + (r.error || JSON.stringify(r)); }
   if (t.dataset.now) { if (!confirm('Send this reminder now to everyone in its audience who has not received it?')) return; const r = await (await api('send-reminder', { method: 'POST', body: JSON.stringify({ kind: t.dataset.now }) })).json(); $('#r-status').textContent = r.error ? 'Failed: ' + r.error : `Sent ${r.sent}, skipped ${r.skipped} already sent, ${r.failed} failed.`; load(); }
+  if (t.dataset.delete) {
+    if (!confirm(`Permanently delete the RSVP from ${t.dataset.name} (${t.dataset.email})? This cannot be undone.`)) return;
+    t.textContent = 'Deleting'; t.disabled = true;
+    const r = await (await api('delete-rsvp', { method: 'POST', body: JSON.stringify({ rsvp_id: t.dataset.delete }) })).json();
+    if (r.ok) { load(); } else { t.textContent = 'Failed'; t.disabled = false; alert('Could not delete: ' + (r.error || 'unknown error')); }
+    return;
+  }
   if (t.dataset.resend) { t.textContent = 'Sending'; const r = await (await api('resend-confirmation', { method: 'POST', body: JSON.stringify({ rsvp_id: t.dataset.resend }) })).json(); t.textContent = r.ok ? 'Sent' : 'Failed'; }
 });
 $('#inv-btn').onclick = async () => { $('#inv-status').textContent = 'Importing'; const r = await (await api('invitees', { method: 'POST', body: JSON.stringify({ csv: $('#inv-csv').value }) })).json(); $('#inv-status').textContent = r.error ? 'Failed: ' + r.error : `Imported or updated ${r.upserted} invitees.`; load(); };

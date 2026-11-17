@@ -13,6 +13,7 @@ import { REMINDERS, type Audience } from "./_lib/config.mts";
 //   POST /api/admin/send             { audience, subject, body_html, test_to? } send an update (test_to sends one copy only)
 //   POST /api/admin/send-reminder    { kind, test_to? } send a scheduled reminder now
 //   POST /api/admin/resend-confirmation { rsvp_id }
+//   POST /api/admin/delete-rsvp      { rsvp_id } permanently remove one response (bot or duplicate)
 
 export default async (req: Request, context: Context) => {
   const denied = requireAdmin(req);
@@ -117,6 +118,15 @@ export default async (req: Request, context: Context) => {
     if (!r) return Response.json({ error: "Not found" }, { status: 404 });
     const res = await sendEmail({ to: r.email, subject: r.attending ? "You are confirmed: Thanks for Answering the Call" : "Thank you for your response: Thanks for Answering the Call", html: confirmationHtml(r), kind: "confirmation", rsvpId: r.id, attachIcs: r.attending });
     return Response.json(res);
+  }
+
+  if (req.method === "POST" && action === "delete-rsvp") {
+    const { rsvp_id } = await req.json();
+    if (!rsvp_id) return Response.json({ error: "rsvp_id is required." }, { status: 400 });
+    const { data, error } = await supabase.from("tfg_rsvps").delete().eq("id", rsvp_id).select("id,first_name,last_name,email");
+    if (error) return Response.json({ error: error.message }, { status: 500 });
+    if (!data || !data.length) return Response.json({ error: "Not found" }, { status: 404 });
+    return Response.json({ ok: true, deleted: data[0] });
   }
 
   return Response.json({ error: "Not found" }, { status: 404 });
