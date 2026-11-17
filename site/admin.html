@@ -59,8 +59,9 @@
       <label>Filter<select id="filter"><option value="all">All responses</option><option value="yes">Confirmed</option><option value="no">Declined</option><option value="guest">With a guest</option><option value="dietary">Dietary notes</option></select></label>
       <label>Search<input type="text" id="search" placeholder="Name, organization, email"></label>
       <div><button class="btn small" id="csv">Download CSV</button></div>
+      <div><button class="btn small" id="del-selected" disabled style="background:#B3261E;border-color:#B3261E">Delete selected</button></div>
     </div>
-    <div class="scroll"><table id="rsvps"><thead><tr><th>Received</th><th>Attending</th><th>Name</th><th>Title / Organization</th><th>Email / Phone</th><th>Entree</th><th>Guest</th><th>Notes</th><th></th></tr></thead><tbody></tbody></table></div>
+    <div class="scroll"><table id="rsvps"><thead><tr><th style="width:36px"><input type="checkbox" id="sel-all" aria-label="Select all shown" style="width:20px;height:20px"></th><th>Received</th><th>Attending</th><th>Name</th><th>Title / Organization</th><th>Email / Phone</th><th>Entree</th><th>Guest</th><th>Notes</th><th></th></tr></thead><tbody></tbody></table></div>
 
     <h2>Send an event update</h2>
     <p class="help">Goes out from the event address with the branded header. Send a test to yourself first.</p>
@@ -114,6 +115,7 @@ function render() {
   const rows = RSVPS.filter(r => (f === 'all') || (f === 'yes' && r.attending) || (f === 'no' && !r.attending) || (f === 'guest' && r.guest_name) || (f === 'dietary' && (r.dietary || r.guest_dietary)))
     .filter(r => !q || [r.first_name, r.last_name, r.organization, r.email, r.title].join(' ').toLowerCase().includes(q));
   $('#rsvps tbody').innerHTML = rows.map(r => `<tr>
+    <td><input type="checkbox" class="sel" value="${r.id}" aria-label="Select ${esc(r.first_name)} ${esc(r.last_name)}" style="width:20px;height:20px"></td>
     <td>${new Date(r.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</td>
     <td class="${r.attending ? 'yes' : 'no'}">${r.attending ? 'Yes' : 'No'}</td>
     <td><b>${esc(r.first_name)} ${esc(r.last_name)}</b></td>
@@ -122,7 +124,8 @@ function render() {
     <td>${esc(r.entree)}${r.dietary ? '<br><i>' + esc(r.dietary) + '</i>' : ''}</td>
     <td>${esc(r.guest_name)}${r.guest_entree ? '<br>' + esc(r.guest_entree) : ''}${r.guest_dietary ? '<br><i>' + esc(r.guest_dietary) + '</i>' : ''}</td>
     <td>${esc(r.notes)}</td>
-    <td style="white-space:nowrap"><button class="btn small ghost" data-resend="${r.id}" title="Resend confirmation">Resend</button> <button class="btn small ghost" data-delete="${r.id}" data-name="${esc(r.first_name)} ${esc(r.last_name)}" data-email="${esc(r.email)}" title="Delete this response" style="color:#B3261E;border-color:#B3261E">Delete</button></td></tr>`).join('') || '<tr><td colspan="9" class="help">No responses match.</td></tr>';
+    <td style="white-space:nowrap"><button class="btn small ghost" data-resend="${r.id}" title="Resend confirmation">Resend</button></td></tr>`).join('') || '<tr><td colspan="10" class="help">No responses match.</td></tr>';
+  $('#sel-all').checked = false; syncSel();
 }
 const paras = t => t.split(/\n\s*\n/).map(p => '<p>' + esc(p.trim()).replace(/\n/g, '<br>') + '</p>').join('');
 
@@ -131,6 +134,18 @@ $('#key').addEventListener('keydown', e => { if (e.key === 'Enter') { KEY = $('#
 $('#logout').onclick = lock;
 $('#refresh').onclick = load;
 $('#filter').onchange = render; $('#search').oninput = render;
+function selected() { return [...document.querySelectorAll('#rsvps .sel:checked')].map(c => c.value); }
+function syncSel() { const n = selected().length; const b = $('#del-selected'); b.disabled = !n; b.textContent = n ? `Delete selected (${n})` : 'Delete selected'; }
+$('#rsvps').addEventListener('change', e => { if (e.target.id === 'sel-all') document.querySelectorAll('#rsvps .sel').forEach(c => c.checked = e.target.checked); syncSel(); });
+$('#del-selected').onclick = async () => {
+  const ids = selected(); if (!ids.length) return;
+  const names = RSVPS.filter(r => ids.includes(r.id)).map(r => `${r.first_name} ${r.last_name} (${r.email})`);
+  if (!confirm(`Permanently delete ${ids.length} RSVP${ids.length > 1 ? 's' : ''}?\n\n${names.join('\n')}\n\nThis cannot be undone.`)) return;
+  const b = $('#del-selected'); b.disabled = true; b.textContent = 'Deleting';
+  const r = await (await api('delete-rsvp', { method: 'POST', body: JSON.stringify({ rsvp_ids: ids }) })).json();
+  if (!r.ok) alert('Could not delete: ' + (r.error || 'unknown error'));
+  load();
+};
 $('#csv').onclick = async () => { const r = await api('rsvps?format=csv'); const b = await r.blob(); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'thanks-for-giving-rsvps.csv'; a.click(); };
 $('#u-test-btn').onclick = async () => { $('#u-status').textContent = 'Sending test'; const r = await (await api('send', { method: 'POST', body: JSON.stringify({ audience: $('#u-aud').value, subject: $('#u-subj').value, body_html: paras($('#u-body').value), test_to: $('#u-test').value }) })).json(); $('#u-status').textContent = r.ok ? 'Test sent.' : 'Failed: ' + (r.error || JSON.stringify(r)); };
 $('#u-send-btn').onclick = async () => { const aud = $('#u-aud').options[$('#u-aud').selectedIndex].text; if (!confirm(`Send "${$('#u-subj').value}" to ${aud}?`)) return; $('#u-status').textContent = 'Sending'; const r = await (await api('send', { method: 'POST', body: JSON.stringify({ audience: $('#u-aud').value, subject: $('#u-subj').value, body_html: paras($('#u-body').value) }) })).json(); $('#u-status').textContent = r.error ? 'Failed: ' + r.error : `Sent ${r.sent} of ${r.recipients} (${r.failed} failed).`; load(); };
@@ -138,13 +153,6 @@ document.addEventListener('click', async e => {
   const t = e.target.closest('button'); if (!t) return;
   if (t.dataset.test) { const to = prompt('Send a test of this reminder to which email?', $('#u-test').value); if (!to) return; const r = await (await api('send-reminder', { method: 'POST', body: JSON.stringify({ kind: t.dataset.test, test_to: to }) })).json(); $('#r-status').textContent = r.ok ? 'Test sent.' : 'Failed: ' + (r.error || JSON.stringify(r)); }
   if (t.dataset.now) { if (!confirm('Send this reminder now to everyone in its audience who has not received it?')) return; const r = await (await api('send-reminder', { method: 'POST', body: JSON.stringify({ kind: t.dataset.now }) })).json(); $('#r-status').textContent = r.error ? 'Failed: ' + r.error : `Sent ${r.sent}, skipped ${r.skipped} already sent, ${r.failed} failed.`; load(); }
-  if (t.dataset.delete) {
-    if (!confirm(`Permanently delete the RSVP from ${t.dataset.name} (${t.dataset.email})? This cannot be undone.`)) return;
-    t.textContent = 'Deleting'; t.disabled = true;
-    const r = await (await api('delete-rsvp', { method: 'POST', body: JSON.stringify({ rsvp_id: t.dataset.delete }) })).json();
-    if (r.ok) { load(); } else { t.textContent = 'Failed'; t.disabled = false; alert('Could not delete: ' + (r.error || 'unknown error')); }
-    return;
-  }
   if (t.dataset.resend) { t.textContent = 'Sending'; const r = await (await api('resend-confirmation', { method: 'POST', body: JSON.stringify({ rsvp_id: t.dataset.resend }) })).json(); t.textContent = r.ok ? 'Sent' : 'Failed'; }
 });
 $('#inv-btn').onclick = async () => { $('#inv-status').textContent = 'Importing'; const r = await (await api('invitees', { method: 'POST', body: JSON.stringify({ csv: $('#inv-csv').value }) })).json(); $('#inv-status').textContent = r.error ? 'Failed: ' + r.error : `Imported or updated ${r.upserted} invitees.`; load(); };
