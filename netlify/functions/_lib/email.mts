@@ -133,6 +133,7 @@ export function updateHtml(subject: string, bodyHtml: string, first: string | nu
 export type SendResult = { ok: boolean; id?: string; error?: string };
 
 export async function sendEmail(opts: { to: string; subject: string; html: string; kind: string; rsvpId?: string | null; attachIcs?: boolean }): Promise<SendResult> {
+  if (/\.invalid$/i.test(opts.to)) return { ok: false, error: "No email on file (added by hand)" };
   const key = Netlify.env.get("RESEND_API_KEY");
   if (!key) {
     await logEmail({ kind: opts.kind, to_email: opts.to, rsvp_id: opts.rsvpId ?? null, subject: opts.subject, status: "skipped", error: "RESEND_API_KEY not set" });

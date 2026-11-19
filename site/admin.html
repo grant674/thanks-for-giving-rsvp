@@ -63,6 +63,15 @@
     </div>
     <div class="scroll"><table id="rsvps"><thead><tr><th style="width:36px"><input type="checkbox" id="sel-all" aria-label="Select all shown" style="width:20px;height:20px"></th><th>Received</th><th>Attending</th><th>Name</th><th>Title / Organization</th><th>Email / Phone</th><th>Entree</th><th>Guest</th><th>Notes</th><th></th></tr></thead><tbody></tbody></table></div>
 
+    <h2>Add RSVPs by hand</h2>
+    <p class="help">For confirmations that came in by phone or email. One person per line: First Last | Title | Organization | Email | Entree | Note. Only the name is required. No confirmation email is sent, and anyone without an email is left out of reminders and updates. Names already on the list are skipped.</p>
+    <textarea id="add-rows" rows="5">Ed Hermes | Councilmember | City of Phoenix | | | Confirmed via Joe Ducey 11/19
+Katie Ritchie | | | | | Confirmed via Joe Ducey 11/19
+Waseem Hamadeh | | | | | Confirmed via Joe Ducey 11/19
+Nico Howard | | | | | Confirmed via Joe Ducey 11/19</textarea>
+    <div class="row" style="margin-top:10px"><div><button class="btn small" id="add-btn">Add to RSVPs</button></div></div>
+    <p class="status" id="add-status"></p>
+
     <h2>Send an event update</h2>
     <p class="help">Goes out from the event address with the branded header. Send a test to yourself first.</p>
     <div class="row">
@@ -120,7 +129,7 @@ function render() {
     <td class="${r.attending ? 'yes' : 'no'}">${r.attending ? 'Yes' : 'No'}</td>
     <td><b>${esc(r.first_name)} ${esc(r.last_name)}</b></td>
     <td>${esc(r.title)}${r.title && r.organization ? '<br>' : ''}${esc(r.organization)}</td>
-    <td>${esc(r.email)}${r.phone ? '<br>' + esc(r.phone) : ''}</td>
+    <td>${/\.invalid$/.test(r.email) ? '<i>No email on file</i>' : esc(r.email)}${r.phone ? '<br>' + esc(r.phone) : ''}</td>
     <td>${esc(r.entree)}${r.dietary ? '<br><i>' + esc(r.dietary) + '</i>' : ''}</td>
     <td>${esc(r.guest_name)}${r.guest_entree ? '<br>' + esc(r.guest_entree) : ''}${r.guest_dietary ? '<br><i>' + esc(r.guest_dietary) + '</i>' : ''}</td>
     <td>${esc(r.notes)}</td>
@@ -155,6 +164,19 @@ document.addEventListener('click', async e => {
   if (t.dataset.now) { if (!confirm('Send this reminder now to everyone in its audience who has not received it?')) return; const r = await (await api('send-reminder', { method: 'POST', body: JSON.stringify({ kind: t.dataset.now }) })).json(); $('#r-status').textContent = r.error ? 'Failed: ' + r.error : `Sent ${r.sent}, skipped ${r.skipped} already sent, ${r.failed} failed.`; load(); }
   if (t.dataset.resend) { t.textContent = 'Sending'; const r = await (await api('resend-confirmation', { method: 'POST', body: JSON.stringify({ rsvp_id: t.dataset.resend }) })).json(); t.textContent = r.ok ? 'Sent' : 'Failed'; }
 });
+$('#add-btn').onclick = async () => {
+  const rows = $('#add-rows').value.split('\n').map(l => l.trim()).filter(Boolean).map(l => {
+    const [name = '', title = '', organization = '', email = '', entree = '', notes = ''] = l.split('|').map(x => x.trim());
+    const parts = name.split(/\s+/); return { first_name: parts.shift() || '', last_name: parts.join(' '), title, organization, email, entree, notes };
+  });
+  if (!rows.length) return;
+  $('#add-status').textContent = 'Adding';
+  const r = await (await api('add-rsvps', { method: 'POST', body: JSON.stringify({ rows }) })).json();
+  if (r.error) { $('#add-status').textContent = 'Failed: ' + r.error; return; }
+  $('#add-status').textContent = `Added ${r.added.length}: ${r.added.map(a => a.first_name + ' ' + a.last_name).join(', ') || 'none'}.` + (r.skipped.length ? ` Skipped ${r.skipped.length}: ${r.skipped.map(x => x.name + ' (' + x.reason + ')').join(', ')}.` : '');
+  if (r.added.length) $('#add-rows').value = '';
+  load();
+};
 $('#inv-btn').onclick = async () => { $('#inv-status').textContent = 'Importing'; const r = await (await api('invitees', { method: 'POST', body: JSON.stringify({ csv: $('#inv-csv').value }) })).json(); $('#inv-status').textContent = r.error ? 'Failed: ' + r.error : `Imported or updated ${r.upserted} invitees.`; load(); };
 if (KEY) open();
 </script>

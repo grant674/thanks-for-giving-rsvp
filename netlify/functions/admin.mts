@@ -13,6 +13,7 @@ import { REMINDERS, type Audience } from "./_lib/config.mts";
 //   POST /api/admin/send             { audience, subject, body_html, test_to? } send an update (test_to sends one copy only)
 //   POST /api/admin/send-reminder    { kind, test_to? } send a scheduled reminder now
 //   POST /api/admin/resend-confirmation { rsvp_id }
+//   POST /api/admin/add-rsvps        { rows: [{ first_name, last_name, title?, organization?, email?, entree?, notes? }] } RSVPs taken by phone or email; no confirmation sent
 //   POST /api/admin/delete-rsvp      { rsvp_ids: [] } permanently remove selected responses (bots, duplicates)
 
 export default async (req: Request, context: Context) => {
@@ -118,6 +119,34 @@ export default async (req: Request, context: Context) => {
     if (!r) return Response.json({ error: "Not found" }, { status: 404 });
     const res = await sendEmail({ to: r.email, subject: r.attending ? "You are confirmed: Thanks for Answering the Call" : "Thank you for your response: Thanks for Answering the Call", html: confirmationHtml(r), kind: "confirmation", rsvpId: r.id, attachIcs: r.attending });
     return Response.json(res);
+  }
+
+  if (req.method === "POST" && action === "add-rsvps") {
+    const body = await req.json();
+    const rows: any[] = Array.isArray(body.rows) ? body.rows.slice(0, 50) : [];
+    const t = (v: any, max = 300) => (typeof v === "string" ? v.trim().slice(0, max) : "");
+    const added: any[] = [], skipped: any[] = [];
+    for (const raw of rows) {
+      const first_name = t(raw.first_name, 80), last_name = t(raw.last_name, 80);
+      if (!first_name || !last_name) { skipped.push({ name: `${first_name} ${last_name}`.trim(), reason: "First and last name are required" }); continue; }
+      let email = t(raw.email).toLowerCase();
+      if (email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { skipped.push({ name: `${first_name} ${last_name}`, reason: "Email looks wrong" }); continue; }
+      // Duplicate check: same email, or same first and last name.
+      const dupe = email
+        ? await supabase.from("tfg_rsvps").select("id").ilike("email", email).limit(1).maybeSingle()
+        : await supabase.from("tfg_rsvps").select("id").ilike("first_name", first_name).ilike("last_name", last_name).limit(1).maybeSingle();
+      if (dupe.data) { skipped.push({ name: `${first_name} ${last_name}`, reason: "Already on the RSVP list" }); continue; }
+      if (!email) email = `${first_name}.${last_name}`.toLowerCase().replace(/[^a-z0-9.]+/g, "") + "@no-email.invalid";
+      const { data: inv } = await supabase.from("tfg_invitees").select("id").ilike("email", email).limit(1).maybeSingle();
+      const { data, error } = await supabase.from("tfg_rsvps").insert({
+        attending: true, first_name, last_name,
+        title: t(raw.title) || null, organization: t(raw.organization) || null, email,
+        entree: t(raw.entree) || null, notes: t(raw.notes, 1000) || null,
+        invitee_id: inv?.id ?? null, user_agent: "admin: added by hand", updated_at: new Date().toISOString(),
+      }).select("id,first_name,last_name").single();
+      if (error) skipped.push({ name: `${first_name} ${last_name}`, reason: error.message }); else added.push(data);
+    }
+    return Response.json({ ok: true, added, skipped });
   }
 
   if (req.method === "POST" && action === "delete-rsvp") {
