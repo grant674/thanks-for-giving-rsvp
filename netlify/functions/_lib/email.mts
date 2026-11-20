@@ -2,7 +2,8 @@ import { Resend } from "resend";
 import { EVENT, FROM, REPLY_TO, SITE_URL } from "./config.mts";
 import { logEmail, type Rsvp } from "./db.mts";
 
-const C = { cream: "#EEF2FC", paper: "#FFFFFF", char: "#10203F", dim: "#4B5A7A", red: "#0033B4", navy: "#0033B4", line: "#D9E0F0", deep: "#001E7A" };
+// Matches the landing page and the final Save the Date: steel navy, bright blue accent.
+const C = { cream: "#F6F8FB", paper: "#FFFFFF", char: "#183C60", dim: "#5A6B80", red: "#183C60", navy: "#183C60", accent: "#2D9BFC", ink: "#1A6FCB", line: "#D9E2EC", deep: "#122E4A" };
 
 function esc(s: string | null | undefined): string {
   return String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c] as string));
@@ -16,9 +17,9 @@ export function shell(opts: { eyebrow: string; headline: string; bodyHtml: strin
 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:${C.cream};"><tr><td align="center" style="padding:24px 12px;">
 <table role="presentation" width="600" cellspacing="0" cellpadding="0" style="max-width:600px;width:100%;background:${C.paper};border:1px solid ${C.navy};">
 <tr><td style="background:${C.red};padding:36px 40px 30px;text-align:center;">
-<div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;letter-spacing:4px;text-transform:uppercase;color:#ffffff;">${esc(opts.eyebrow)}</div>
-<div style="padding-top:14px;font-family:'Arial Narrow',Impact,Arial,sans-serif;font-size:42px;line-height:1;font-weight:bold;text-transform:uppercase;color:#ffffff;">Thanks for Answering the Call</div>
-<div style="padding-top:10px;font-family:Arial,Helvetica,sans-serif;font-size:13px;letter-spacing:1px;text-transform:uppercase;color:#D6E0FA;">A Celebration of Firefighters and Those Who Support Them</div>
+<div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;letter-spacing:4px;text-transform:uppercase;color:${C.accent};font-weight:bold;">${esc(opts.eyebrow)}</div>
+<div style="padding-top:14px;font-family:'Arial Narrow','Helvetica Neue Condensed',Impact,Arial,sans-serif;font-size:44px;line-height:.95;font-weight:bold;text-transform:uppercase;color:#ffffff;">Thanks for Answering <span style="color:${C.accent};">the Call</span></div>
+<div style="padding-top:12px;font-family:Arial,Helvetica,sans-serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:#C9D6E6;">A Celebration of Firefighters and Those Who Support Them</div>
 </td></tr>
 <tr><td style="padding:24px 40px 8px;font-family:Arial,Helvetica,sans-serif;font-size:24px;font-weight:bold;color:${C.char};">${esc(opts.headline)}</td></tr>
 <tr><td style="padding:0 40px 28px;font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:1.55;color:${C.char};">${opts.bodyHtml}</td></tr>
@@ -43,11 +44,11 @@ export function factsBlock(): string {
 }
 
 export function button(label: string, href: string): string {
-  return `<table role="presentation" cellspacing="0" cellpadding="0" style="margin:18px auto;"><tr><td style="background:${C.red};"><a href="${href}" style="display:inline-block;padding:14px 28px;font-family:Arial,Helvetica,sans-serif;font-size:13px;letter-spacing:3px;text-transform:uppercase;font-weight:bold;color:#ffffff;text-decoration:none;">${esc(label)}</a></td></tr></table>`;
+  return `<table role="presentation" cellspacing="0" cellpadding="0" style="margin:18px auto;"><tr><td style="background:${C.ink};"><a href="${href}" style="display:inline-block;padding:14px 28px;font-family:Arial,Helvetica,sans-serif;font-size:13px;letter-spacing:3px;text-transform:uppercase;font-weight:bold;color:#ffffff;text-decoration:none;">${esc(label)}</a></td></tr></table>`;
 }
 
 export function icsFile(): string {
-  // 8:30 to 10:00 AM Phoenix = 15:30 to 17:00 UTC (no DST in Arizona)
+  // 8:30 to 10:30 AM Phoenix = 15:30 to 17:30 UTC (no DST in Arizona)
   const lines = [
     "BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Pacheco Ventures//Thanks for Answering the Call//EN", "METHOD:PUBLISH",
     "BEGIN:VEVENT",
@@ -105,7 +106,7 @@ ${button("RSVP now", SITE_URL())}`,
       eyebrow: "One week out",
       headline: `${first}, we will see you Tuesday the 1st.`,
       preheader: "Your seat is reserved. Here are the details again.",
-      bodyHtml: `<p>A quick note one week ahead of ${esc(EVENT.shortName)}. Your seat is reserved and your breakfast selection is in with the caterer.</p>
+      bodyHtml: `<p>A quick note one week ahead of ${esc(EVENT.shortName)}. Your seat is reserved, and we have shared your breakfast selection with the caterer.</p>
 ${factsBlock()}
 <p>The program begins at 9:15 a.m. and the morning wraps by 10:30. If you need to change your response or your guest, reply to this email.</p>`,
     });
@@ -116,10 +117,10 @@ ${factsBlock()}
     preheader: "Doors open 8:30 AM. Parking is in the museum lot.",
     bodyHtml: `<p>We are looking forward to tomorrow. A few details to make arrival easy:</p>
 <ul style="padding-left:20px;margin:8px 0;">
-<li><strong>Doors open 8:30 a.m.</strong> Check in at the table inside the entrance; badges and programs are waiting for you.</li>
-<li><strong>Parking</strong> is complimentary in the museum lot at ${esc(EVENT.address1)}. A fire engine will be parked at the entrance.</li>
+<li><strong>Doors open at 8:30 a.m.</strong> Check in at the table inside the museum entrance, where your name badge will be waiting. Our team will walk you to Gallery 3 for breakfast and the program.</li>
+<li><strong>Parking</strong> is complimentary in the museum lot. Look for the fire engine at the entrance.</li>
 <li><strong>Program begins at 9:15 a.m.</strong> Networking and an optional museum tour follow at 10:00, and the morning concludes at 10:30.</li>
-<li><strong>Press</strong> may be present for the recognition and donation portion of the program.</li>
+<li><strong>Media</strong> may attend the program.</li>
 </ul>
 ${factsBlock()}
 <p>Day-of contact: ${esc(EVENT.contactName)}, ${esc(EVENT.contactPhone)}.</p>`,

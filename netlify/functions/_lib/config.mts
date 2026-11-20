@@ -19,7 +19,7 @@ export const EVENT = {
   address2: "Phoenix, AZ 85008",
   parking: "Complimentary parking in the museum lot. Look for the fire engine at the entrance.",
   rsvpDeadline: "Tuesday, November 17",
-  beneficiaries: "the Professional Fire Fighters of Arizona and the Hall of Flame Museum of Firefighting",
+  beneficiaries: "the Arizona Firefighters Foundation and the Hall of Flame Museum of Firefighting",
   contactName: "Grant Packwood",
   contactEmail: "grant@pachecoventuresaz.com",
   contactPhone: "(602) 617-3881",
@@ -37,4 +37,4 @@ export const REMINDERS: { kind: string; sendOn: string; audience: Audience; subj
 
 export const FROM = () => Netlify.env.get("FROM_EMAIL") || "Thanks for Answering the Call <rsvp@pachecoventuresaz.com>";
 export const REPLY_TO = () => Netlify.env.get("REPLY_TO_EMAIL") || EVENT.contactEmail;
-export const SITE_URL = () => (Netlify.env.get("SITE_URL") || Netlify.env.get("URL") || "https://thanks-for-giving-rsvp.netlify.app").replace(/\/$/, "");
+export const SITE_URL = () => (Netlify.env.get("SITE_URL") || Netlify.env.get("URL") || "https://answeringthecall2026.com").replace(/\/$/, "");
