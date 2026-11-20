@@ -64,13 +64,8 @@
     <div class="scroll"><table id="rsvps"><thead><tr><th style="width:36px"><input type="checkbox" id="sel-all" aria-label="Select all shown" style="width:20px;height:20px"></th><th>Received</th><th>Attending</th><th>Name</th><th>Title / Organization</th><th>Email / Phone</th><th>Entree</th><th>Guest</th><th>Notes</th><th></th></tr></thead><tbody></tbody></table></div>
 
     <h2>Add RSVPs by hand</h2>
-    <p class="help">For confirmations that came in by phone or email. One person per line: First Last | Title | Organization | Email | Entree | Note. Only the name is required. No confirmation email is sent, and anyone without an email is left out of reminders and updates. Names already on the list are skipped.</p>
-    <textarea id="add-rows" rows="7">Ed Hermes | Partner, Snell & Wilmer | Candidate, Phoenix City Council District 4 | | | Confirmed via Joe Ducey 11/19
-Katie Ritchie | | | | | Confirmed via Joe Ducey 11/19
-Waseem Hamadeh | Owner and Broker | Venture REI / HOH Investment Group | | | Confirmed via Joe Ducey 11/19
-Nico Howard | | | | | Confirmed via Joe Ducey 11/19
-Michael Manley | Firefighter | Phoenix Fire Department | | | Confirmed via Joe Ducey 11/18
-Kurt Shughart | Firefighter | Phoenix Fire Department | | | Confirmed via Joe Ducey 11/18</textarea>
+    <p class="help">For confirmations that came in by phone or email. One person per line: First Last | Title | Organization | Email | Entree | Note | Yes or No. Only the name is required; leave the last field blank for a yes, or put No to record a decline. No confirmation email is sent, and anyone without an email is left out of reminders and updates. Names already on the list are skipped.</p>
+    <textarea id="add-rows" rows="6" placeholder="Jane Doe | CEO | Example Org | jane@example.org | Brioche French Toast | Confirmed by phone 11/20 | Yes"></textarea>
     <div class="row" style="margin-top:10px"><div><button class="btn small" id="add-btn">Add to RSVPs</button></div></div>
     <p class="status" id="add-status"></p>
 
@@ -168,8 +163,8 @@ document.addEventListener('click', async e => {
 });
 $('#add-btn').onclick = async () => {
   const rows = $('#add-rows').value.split('\n').map(l => l.trim()).filter(Boolean).map(l => {
-    const [name = '', title = '', organization = '', email = '', entree = '', notes = ''] = l.split('|').map(x => x.trim());
-    const parts = name.split(/\s+/); return { first_name: parts.shift() || '', last_name: parts.join(' '), title, organization, email, entree, notes };
+    const [name = '', title = '', organization = '', email = '', entree = '', notes = '', attending = ''] = l.split('|').map(x => x.trim());
+    const parts = name.split(/\s+/); return { first_name: parts.shift() || '', last_name: parts.join(' '), title, organization, email, entree, notes, attending };
   });
   if (!rows.length) return;
   $('#add-status').textContent = 'Adding';

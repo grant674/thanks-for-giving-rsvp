@@ -13,7 +13,7 @@ import { REMINDERS, type Audience } from "./_lib/config.mts";
 //   POST /api/admin/send             { audience, subject, body_html, test_to? } send an update (test_to sends one copy only)
 //   POST /api/admin/send-reminder    { kind, test_to? } send a scheduled reminder now
 //   POST /api/admin/resend-confirmation { rsvp_id }
-//   POST /api/admin/add-rsvps        { rows: [{ first_name, last_name, title?, organization?, email?, entree?, notes? }] } RSVPs taken by phone or email; no confirmation sent
+//   POST /api/admin/add-rsvps        { rows: [{ first_name, last_name, title?, organization?, email?, entree?, notes?, attending? ("No" = declined) }] } RSVPs taken by phone or email; no confirmation sent
 //   POST /api/admin/delete-rsvp      { rsvp_ids: [] } permanently remove selected responses (bots, duplicates)
 
 export default async (req: Request, context: Context) => {
@@ -138,10 +138,11 @@ export default async (req: Request, context: Context) => {
       if (dupe.data) { skipped.push({ name: `${first_name} ${last_name}`, reason: "Already on the RSVP list" }); continue; }
       if (!email) email = `${first_name}.${last_name}`.toLowerCase().replace(/[^a-z0-9.]+/g, "") + "@no-email.invalid";
       const { data: inv } = await supabase.from("tfg_invitees").select("id").ilike("email", email).limit(1).maybeSingle();
+      const attending = !/^(no|n|declined?)$/i.test(t(raw.attending));
       const { data, error } = await supabase.from("tfg_rsvps").insert({
-        attending: true, first_name, last_name,
+        attending, first_name, last_name,
         title: t(raw.title) || null, organization: t(raw.organization) || null, email,
-        entree: t(raw.entree) || null, notes: t(raw.notes, 1000) || null,
+        entree: attending ? t(raw.entree) || null : null, notes: t(raw.notes, 1000) || null,
         invitee_id: inv?.id ?? null, user_agent: "admin: added by hand", updated_at: new Date().toISOString(),
       }).select("id,first_name,last_name").single();
       if (error) skipped.push({ name: `${first_name} ${last_name}`, reason: error.message }); else added.push(data);
